@@ -18,6 +18,8 @@ package prom
 
 import (
 	"context"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/klog"
 	"time"
 
 	clientset "k8s.io/client-go/kubernetes"
@@ -33,10 +35,17 @@ func (icpc *inClusterPrometheusClient) Query(query string, queryTime time.Time) 
 		"query": query,
 		"time":  queryTime.Format(time.RFC3339),
 	}
-	return icpc.client.CoreV1().
-		Services("monitoring").
-		ProxyGet("http", "prometheus-k8s", "9090", "api/v1/query", params).
+	klog.Info("quering Prometheus")
+	byte, err := icpc.client.CoreV1().
+		Services(metav1.NamespaceDefault).
+		ProxyGet("http", "prometheus", "9090", "api/v1/query", params).
 		DoRaw(context.TODO())
+	if err != nil{
+		klog.Errorf(err.Error())
+	}
+	klog.Infof(string(byte))
+	return byte, err
+
 }
 
 func NewInClusterPrometheusClient(c clientset.Interface) Client {

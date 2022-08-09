@@ -310,20 +310,24 @@ func main() {
 		klog.Exitf("Framework creation error: %v", err)
 	}
 
-	var prometheusController *prometheus.Controller
+	//var prometheusController *prometheus.Controller
 	var prometheusFramework *framework.Framework
-	if clusterLoaderConfig.PrometheusConfig.EnableServer {
-		if prometheusController, err = prometheus.NewController(&clusterLoaderConfig); err != nil {
-			klog.Exitf("Error while creating Prometheus Controller: %v", err)
-		}
-		prometheusFramework = prometheusController.GetFramework()
-		if err := prometheusController.SetUpPrometheusStack(); err != nil {
-			klog.Exitf("Error while setting up prometheus stack: %v", err)
-		}
-		if clusterLoaderConfig.PrometheusConfig.TearDownServer {
-			prometheusController.EnableTearDownPrometheusStackOnInterrupt()
-		}
+	//if clusterLoaderConfig.PrometheusConfig.EnableServer {
+	//	if prometheusController, err = prometheus.NewController(&clusterLoaderConfig); err != nil {
+	//		klog.Exitf("Error while creating Prometheus Controller: %v", err)
+	//	}
+	//	prometheusFramework = prometheusController.GetFramework()
+	//	if err := prometheusController.SetUpPrometheusStack(); err != nil {
+	//		klog.Exitf("Error while setting up prometheus stack: %v", err)
+	//	}
+	//	if clusterLoaderConfig.PrometheusConfig.TearDownServer {
+	//		prometheusController.EnableTearDownPrometheusStackOnInterrupt()
+	//	}
+	//}
+
+	if prometheusFramework, err = framework.NewPromFramework(&clusterLoaderConfig.ClusterConfig, 1); err != nil {
 	}
+
 	if clusterLoaderConfig.ExecServiceConfig.Enable {
 		if err := execservice.SetUpExecService(f, clusterLoaderConfig.ExecServiceConfig); err != nil {
 			klog.Exitf("Error while setting up exec service: %v", err)
@@ -380,15 +384,15 @@ func main() {
 
 	testReporter.EndTestSuite()
 
-	if err := prometheusController.MakePrometheusSnapshotIfEnabled(); err != nil {
-		klog.Errorf("Error while making prometheus snapshot: %v", err)
-	}
+	//if err := prometheusController.MakePrometheusSnapshotIfEnabled(); err != nil {
+	//	klog.Errorf("Error while making prometheus snapshot: %v", err)
+	//}
 
-	if clusterLoaderConfig.PrometheusConfig.EnableServer && clusterLoaderConfig.PrometheusConfig.TearDownServer {
-		if err := prometheusController.TearDownPrometheusStack(); err != nil {
-			klog.Errorf("Error while tearing down prometheus stack: %v", err)
-		}
-	}
+	//if clusterLoaderConfig.PrometheusConfig.EnableServer && clusterLoaderConfig.PrometheusConfig.TearDownServer {
+	//	if err := prometheusController.TearDownPrometheusStack(); err != nil {
+	//		klog.Errorf("Error while tearing down prometheus stack: %v", err)
+	//	}
+	//}
 	if clusterLoaderConfig.ExecServiceConfig.Enable {
 		if err := execservice.TearDownExecService(f); err != nil {
 			klog.Errorf("Error while tearing down exec service: %v", err)

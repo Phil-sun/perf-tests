@@ -68,6 +68,11 @@ func NewRootFramework(clusterConfig *config.ClusterConfig, clientsNumber int) (*
 	return newFramework(clusterConfig, clientsNumber, kubeConfigPath)
 }
 
+func NewPromFramework(clusterConfig *config.ClusterConfig, clientsNumber int)(*Framework, error) {
+	klog.Infof("Creating Prometheus framework")
+	return newFramework(clusterConfig, clientsNumber, "/root/.kube/config")
+}
+
 func newFramework(clusterConfig *config.ClusterConfig, clientsNumber int, kubeConfigPath string) (*Framework, error) {
 	klog.Infof("Creating framework with %d clients and %q kubeconfig.", clientsNumber, kubeConfigPath)
 	var err error
