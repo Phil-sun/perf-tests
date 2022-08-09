@@ -1,0 +1,65 @@
+name: test
+
+namespace:
+  number: 20
+
+tuningSets:
+- name: Uniform1qps
+  qpsLoad:
+    qps: 1
+
+steps:
+- name: Start measurements
+  measurements:
+  - Identifier: APIResponsivenessPrometheus
+    Method: APIResponsivenessPrometheus
+    Params:
+      action: start
+  - Identifier: APIResponsivenessPrometheusSimple
+    Method: APIResponsivenessPrometheus
+    Params:
+      action: start
+  - Identifier: WaitForControlledPodsRunning
+    Method: WaitForControlledPodsRunning
+    Params:
+      action: start
+      apiVersion: apps/v1
+      kind: Deployment
+      labelSelector:  group = test-deployment-100-2
+      operationTimeout: 300s
+- name: Create deployment
+  phases:
+  - namespaceRange:
+      min: 1
+      max: 20
+    replicasPerNamespace: 25
+    tuningSet: Uniform1qps
+    objectBundle:
+    - basename: test-deployment
+      objectTemplatePath: "deployment.yaml"
+      templateFillMap:
+        Replicas: 2000
+    - basename: test-pp
+      objectTemplatePath: "pp.yaml"
+      templateFillMap:
+        Replicas: 1
+- name: Wait for pods to be running
+  measurements:
+  - Identifier: WaitForControlledPodsRunning
+    Method: WaitForControlledPodsRunning
+    Params:
+      action: gather
+- name: Collecting measurements
+  measurements:
+  - Identifier: APIResponsivenessPrometheusSimple
+    Method: APIResponsivenessPrometheus
+    Params:
+      action: gather
+      enableViolations: true
+      useSimpleLatencyQuery: true
+      summaryName: APIResponsivenessPrometheus_simple
+  - Identifier: APIResponsivenessPrometheus
+    Method: APIResponsivenessPrometheus
+    Params:
+      action: gather
+
