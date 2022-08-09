@@ -143,7 +143,8 @@ func (w *waitForControlledPodsRunningMeasurement) Execute(config *measurement.Co
 		if err != nil {
 			return nil, err
 		}
-		return nil, w.gather(syncTimeout)
+		w.gather(syncTimeout)
+		return nil,nil
 	default:
 		return nil, fmt.Errorf("unknown action %v", action)
 	}
